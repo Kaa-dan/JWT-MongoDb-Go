@@ -69,15 +69,6 @@ func main() {
 		})
 	})
 
-	// Test endpoints
-	router.GET("/api-1", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{"success": "Access granted for api-1"})
-	})
-
-	router.GET("/api-2", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{"success": "Access granted for api-2"})
-	})
-
 	log.Printf("Starting server on port %s", port)
 	router.Run(":" + port)
 }
