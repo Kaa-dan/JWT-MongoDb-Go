@@ -6,6 +6,9 @@ import (
 )
 
 func AuthRoutes(r *gin.Engine) {
-	r.POST("users/signup", controllers.Signup())
-	r.POST("users/login", controllers.Login())
+	authGroup := r.Group("/auth")
+	{
+		authGroup.POST("/signup", controllers.Signup()) //POST /auth/signup  - create new user
+		authGroup.POST("/login", controllers.Login())   // POST /auth/login  - login already existing user
+	}
 }
