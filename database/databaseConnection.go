@@ -25,8 +25,10 @@ func ConnectDB() {
 	if mongoURI == "" {
 		log.Fatal("MONGODB_URL environment variable not set")
 	}
+	fmt.Println("mongoUri", mongoURI)
 
 	dbName := os.Getenv("DB_NAME")
+	fmt.Println("dbName", dbName)
 	if dbName == "" {
 		dbName = "jwt_auth_db" // default database name
 	}

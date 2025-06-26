@@ -11,6 +11,7 @@ import (
 	"github.com/kaa-dan/JWT-MongoDb-Go/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -24,14 +25,23 @@ type SignedDetails struct {
 	jwt.RegisteredClaims
 }
 
-var userCollection = database.GetCollection("users")
-var SECRET_KEY = os.Getenv("SECRET_KEY")
+var userCollection *mongo.Collection
+var SECRET_KEY string
+
+// InitializeTokenHelper initializes the package variables after DB connection
+func InitializeTokenHelper() {
+	userCollection = database.GetCollection("users")
+	SECRET_KEY = os.Getenv("SECRET_KEY")
+	if SECRET_KEY == "" {
+		log.Fatal("SECRET_KEY environment variable not set")
+	}
+}
 
 // GenerateAllTokens generates both access and refresh tokens
 func GenerateAllTokens(email string, firstName string, lastName string, userType string, uid string) (signedToken string, signedRefreshToken string, err error) {
-	// Validate SECRET_KEY
+	// Ensure initialization
 	if SECRET_KEY == "" {
-		return "", "", fmt.Errorf("SECRET_KEY environment variable not set")
+		return "", "", fmt.Errorf("token helper not initialized - call InitializeTokenHelper() first")
 	}
 
 	// Create claims for access token (expires in 24 hours)
@@ -81,6 +91,10 @@ func GenerateAllTokens(email string, firstName string, lastName string, userType
 
 // ValidateToken validates the JWT token and returns claims
 func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
+	// Ensure initialization
+	if SECRET_KEY == "" {
+		return nil, "token helper not initialized"
+	}
 	// Parse the token
 	token, err := jwt.ParseWithClaims(
 		signedToken,
@@ -117,6 +131,10 @@ func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
 
 // UpdateAllTokens updates both access and refresh tokens in the database
 func UpdateAllTokens(signedToken string, signedRefreshToken string, userId string) {
+	// Ensure initialization
+	if userCollection == nil {
+		log.Panic("token helper not initialized - call InitializeTokenHelper() first")
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 

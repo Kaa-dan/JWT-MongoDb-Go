@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kaa-dan/JWT-MongoDb-Go/database"
 	"github.com/kaa-dan/JWT-MongoDb-Go/helpers"
 	"github.com/kaa-dan/JWT-MongoDb-Go/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -17,9 +18,21 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// InitializeUserController initializes the package variables after DB connection
+func InitializeUserController() {
+	userCollection = database.GetCollection("users")
+}
+
 // GetUsers retrieves all users (Admin only)
 func GetUsers() gin.HandlerFunc {
 	return gin.HandlerFunc(func(c *gin.Context) {
+		// Ensure initialization
+		if userCollection == nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Database not initialized",
+			})
+			return
+		}
 		// Check if user is admin
 		if err := helpers.CheckUserType(c, "ADMIN"); err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
@@ -98,6 +111,13 @@ func GetUsers() gin.HandlerFunc {
 // GetUser retrieves a single user by ID
 func GetUser() gin.HandlerFunc {
 	return gin.HandlerFunc(func(c *gin.Context) {
+		// Ensure initialization
+		if userCollection == nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Database not initialized",
+			})
+			return
+		}
 		userId := c.Param("user_id")
 
 		// Check if user is authorized to access this user data
@@ -137,6 +157,13 @@ func GetUser() gin.HandlerFunc {
 // UpdateUser updates user information
 func UpdateUser() gin.HandlerFunc {
 	return gin.HandlerFunc(func(c *gin.Context) {
+		// Ensure initialization
+		if userCollection == nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Database not initialized",
+			})
+			return
+		}
 		userId := c.Param("user_id")
 
 		// Check if user is authorized to update this user data
@@ -259,6 +286,13 @@ func UpdateUser() gin.HandlerFunc {
 // DeleteUser deletes a user (Admin only)
 func DeleteUser() gin.HandlerFunc {
 	return gin.HandlerFunc(func(c *gin.Context) {
+		// Ensure initialization
+		if userCollection == nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Database not initialized",
+			})
+			return
+		}
 		userId := c.Param("user_id")
 
 		// Check if user is admin

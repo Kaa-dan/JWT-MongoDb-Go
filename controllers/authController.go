@@ -18,8 +18,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var userCollection *mongo.Collection = database.GetCollection("users")
+var userCollection *mongo.Collection
 var validate = validator.New()
+
+// InitializeAuthController initializes the package variables after DB connection
+func InitializeAuthController() {
+	userCollection = database.GetCollection("users")
+}
 
 // HashPassword hashes the password using bcrypt
 func HashPassword(password string) string {
@@ -47,6 +52,13 @@ func VerifyPassword(userPassword string, providedPassword string) (bool, string)
 // Signup creates a new user account
 func Signup() gin.HandlerFunc {
 	return gin.HandlerFunc(func(c *gin.Context) {
+		// Ensure initialization
+		if userCollection == nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Database not initialized",
+			})
+			return
+		}
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 		defer cancel()
 
@@ -134,6 +146,13 @@ func Signup() gin.HandlerFunc {
 // Login authenticates a user and returns JWT tokens
 func Login() gin.HandlerFunc {
 	return gin.HandlerFunc(func(c *gin.Context) {
+		// Ensure initialization
+		if userCollection == nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Database not initialized",
+			})
+			return
+		}
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 		defer cancel()
 

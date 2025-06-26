@@ -7,7 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/kaa-dan/JWT-MongoDb-Go/controllers"
 	"github.com/kaa-dan/JWT-MongoDb-Go/database"
+	"github.com/kaa-dan/JWT-MongoDb-Go/helpers"
 	"github.com/kaa-dan/JWT-MongoDb-Go/routes"
 )
 
@@ -19,6 +21,11 @@ func main() {
 
 	// Connect to MongoDB
 	database.ConnectDB()
+
+	// Initialize package-level variables after DB connection
+	helpers.InitializeTokenHelper()
+	controllers.InitializeAuthController()
+	controllers.InitializeUserController()
 
 	// Set Gin mode based on environment
 	if os.Getenv("GIN_MODE") == "release" {
