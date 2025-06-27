@@ -67,7 +67,7 @@ func Signup() gin.HandlerFunc {
 		// Bind JSON request to user struct
 		if err := c.BindJSON(&user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
+				"error": "user fields are required " + err.Error(),
 			})
 			return
 		}
