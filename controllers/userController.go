@@ -56,7 +56,6 @@ func GetUsers() gin.HandlerFunc {
 		}
 
 		startIndex := (page - 1) * recordPerPage
-		startIndex, err = strconv.Atoi(c.Query("startIndex"))
 
 		// Create aggregation pipeline
 		matchStage := bson.D{{Key: "$match", Value: bson.D{{}}}}
